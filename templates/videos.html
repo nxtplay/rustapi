@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Videos</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #videoPlayerWrapper { width: 70%; float: left; transition: width 0.5s; }
+        #videoListWrapper { width: 30%; float: right; transition: width 0.5s;}
+        #videoListWrapper ul { list-style: none; padding: 0; }
+        #videoListWrapper li { margin-bottom: 10px; }
+        #videoListWrapper a { text-decoration: none; color: blue; }
+        #videoPlayer { width: 100%; height: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+ #sidebarCollapse {
+            padding: 10px;
+            background-color: #f1f1f1;
+            text-align: left;
+            cursor: pointer;
+            border: none;
+        }
+        #sidebarCollapse:hover {
+            background-color: #ddd;
+        }
+        .bar{
+            display: block;
+            width: 25px;
+            height: 3px;
+            margin: 5px auto;
+            -webkit-transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+            background-color: #333;
+        }
+        #sidebarContent {
+            overflow: hidden;
+            transition: width 0.5s; /* Animation */
+        }       
+        </style>
+</head>
+<body>
+    <div id="videoPlayerWrapper">
+        <!-- This will be replaced by the video player -->
+        <video id="videoPlayer" controls>
+            <source src="path_to_default_video.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <div id="videoListWrapper">
+      <button id="sidebarCollapse">
+     <div class="bar"> </div>
+        <div class="bar"> </div>
+        <div class="bar"> </div>
+      </button>
+      <div id="sidebarContent">
+        <h2>Video Clips</h2>
+        <ul>
+            {% for video_url in videos %}
+                <li><a href="#" onclick="document.getElementById('videoPlayer').src = '{{ video_url.cloudfront_url}}'; return false;">{{ video_url.title }}</a></li>
+            {% else %}
+                <li>No videos found.</li>
+            {% endfor %}
+        </ul>
+
+    <form action="{{ presigned_url }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" />
+        <input type="submit" value="Upload" />
+    </form>
+     </div>
+    </div>
+    <div style="clear: both;"></div>
+    <!-- Assuming you have some data to display in a table format -->
+    <table>
+        <tr>
+            <th>Play</th>
+            <th>Type</th>
+            <th>Result</th>
+            <!-- Add more headers as needed -->
+        </tr>
+        {% for video_data in videos_data %}
+        <tr>
+            <td>{{ video_data.play }}</td>
+            <td>{{ video_data.playtype }}</td>
+            <td>{{ video_data.result }}</td>
+            <!-- Add more data cells as needed -->
+        </tr>
+        {% endfor %}
+    </table>
+    <script>
+    document.getElementById('sidebarCollapse').onclick = function() {
+            var sidebar = document.getElementById('sidebarContent');
+            var videoWrapper = document.getElementById('videoPlayerWrapper');
+            var listWrapper = document.getElementById('videoListWrapper');
+
+            if (sidebar.style.width === '0px' || sidebar.style.width === '') {
+                sidebar.style.width = '30%'; // Expand sidebar
+                videoWrapper.style.width = '70%'; // Shrink video
+                listWrapper.style.width = '30%'; // Expand sidebar wrapper
+            } else {
+                sidebar.style.width = '0px'; // Collapse sidebar
+                videoWrapper.style.width = '97%'; // Expand video
+                listWrapper.style.width = '3%'; // Collapse sidebar wrapper
+            }
+        };
+    </script>
+</body>
+</html>
