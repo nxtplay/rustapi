@@ -39,35 +39,25 @@
         </style>
 </head>
 <body>
-    <div id="videoPlayerWrapper">
-        <!-- This will be replaced by the video player -->
-        <video id="videoPlayer" controls>
-            <source src="path_to_default_video.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-    </div>
-    <div id="videoListWrapper">
-      <button id="sidebarCollapse">
-     <div class="bar"> </div>
-        <div class="bar"> </div>
-        <div class="bar"> </div>
-      </button>
-      <div id="sidebarContent">
-        <h2>Video Clips</h2>
-        <ul>
-            {% for video_url in videos %}
-                <li><a href="#" onclick="document.getElementById('videoPlayer').src = '{{ video_url.cloudfront_url}}'; return false;">{{ video_url.title }}</a></li>
-            {% else %}
-                <li>No videos found.</li>
-            {% endfor %}
-        </ul>
-
-    <form action="{{ presigned_url }}" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" />
-        <input type="submit" value="Upload" />
-    </form>
-     </div>
-    </div>
+<div id="videoPlayerWrapper" style="position: relative; padding-top: 56.25%">
+    <iframe
+        id="videoPlayer"
+        src="https://customer-<CODE>.cloudflarestream.com/<DEFAULT_VIDEO_UID>/iframe"
+        style="border: none; position: absolute; top: 0; height: 100%; width: 100%"
+        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+        allowfullscreen="true">
+    </iframe>
+</div>
+<div id="videoListWrapper">
+    <h2>Video Clips</h2>
+    <ul>
+        {% for video in videos %}
+            <li><a href="#" onclick="changeVideo('{{ video.video_uid }}'); return false;">{{ video.title }}</a></li>
+        {% else %}
+            <li>No videos found.</li>
+        {% endfor %}
+    </ul>
+</div>
     <div style="clear: both;"></div>
     <!-- Assuming you have some data to display in a table format -->
     <table>
@@ -102,6 +92,9 @@
                 listWrapper.style.width = '3%'; // Collapse sidebar wrapper
             }
         };
-    </script>
+function changeVideo(videoUID) {
+        var iframeSrc = `https://customer-mcs4oh9p1cp0fw64.cloudflarestream.com/${videoUID}/iframe`;
+        document.getElementById('videoPlayer').src = iframeSrc;
+    }    </script>
 </body>
 </html>
