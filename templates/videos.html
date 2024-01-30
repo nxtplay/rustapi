@@ -1,100 +1,213 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Videos</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        #videoPlayerWrapper { width: 70%; float: left; transition: width 0.5s; }
-        #videoListWrapper { width: 30%; float: right; transition: width 0.5s;}
-        #videoListWrapper ul { list-style: none; padding: 0; }
-        #videoListWrapper li { margin-bottom: 10px; }
-        #videoListWrapper a { text-decoration: none; color: blue; }
-        #videoPlayer { width: 100%; height: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
- #sidebarCollapse {
-            padding: 10px;
-            background-color: #f1f1f1;
-            text-align: left;
-            cursor: pointer;
-            border: none;
-        }
-        #sidebarCollapse:hover {
-            background-color: #ddd;
-        }
-        .bar{
-            display: block;
-            width: 25px;
-            height: 3px;
-            margin: 5px auto;
-            -webkit-transition: all 0.3s ease-in-out;
-            transition: all 0.3s ease-in-out;
-            background-color: #333;
-        }
-        #sidebarContent {
-            overflow: hidden;
-            transition: width 0.5s; /* Animation */
-        }       
-        </style>
-</head>
-<body>
-<div id="videoPlayerWrapper" style="position: relative; padding-top: 56.25%">
-    <iframe
+      body {
+        font-family: Arial, sans-serif;
+      }
+      #videoPlayerWrapper {
+        width: 70%;
+        float: left;
+        transition: width 0.5s;
+      }
+      #videoListWrapper {
+        width: 30%;
+        float: right;
+        transition: width 0.5s;
+      }
+      #videoListWrapper ul {
+        list-style: none;
+        padding: 0;
+      }
+      #videoListWrapper li {
+        margin-bottom: 10px;
+      }
+      #videoListWrapper a {
+        text-decoration: none;
+        color: blue;
+      }
+      #videoPlayer {
+        width: 100%;
+        height: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      #sidebarCollapse {
+        padding: 10px;
+        background-color: #f1f1f1;
+        text-align: left;
+        cursor: pointer;
+        border: none;
+      }
+      #sidebarCollapse:hover {
+        background-color: #ddd;
+      }
+      .bar {
+        display: block;
+        width: 25px;
+        height: 3px;
+        margin: 5px auto;
+        -webkit-transition: all 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
+        background-color: #333;
+      }
+      #sidebarContent {
+        overflow: hidden;
+        transition: width 0.5s; /* Animation */
+      }
+      #drag-drop-area {
+        border: 2px dashed #ccc;
+        padding: 20px;
+        text-align: center;
+        margin: 20px;
+      }
+      .upload-button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        margin: 10px 0;
+        border: none;
+        cursor: pointer;
+      }
+      .upload-button:hover {
+        background-color: #45a049;
+      }
+    </style>
+
+    <link
+      href="https://releases.transloadit.com/uppy/v3.0.1/uppy.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div
+      id="videoPlayerWrapper"
+      style="position: relative; padding-top: 56.25%"
+    >
+      <iframe
         id="videoPlayer"
         src="https://customer-<CODE>.cloudflarestream.com/<DEFAULT_VIDEO_UID>/iframe"
-        style="border: none; position: absolute; top: 0; height: 100%; width: 100%"
+        style="
+          border: none;
+          position: absolute;
+          top: 0;
+          height: 100%;
+          width: 100%;
+        "
         allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-        allowfullscreen="true">
-    </iframe>
-</div>
-<div id="videoListWrapper">
-    <h2>Video Clips</h2>
-    <ul>
+        allowfullscreen="true"
+      >
+      </iframe>
+    </div>
+    <div id="videoListWrapper">
+      <h2>Video Clips</h2>
+      <ul>
         {% for video in videos %}
-            <li><a href="#" onclick="changeVideo('{{ video.video_uid }}'); return false;">{{ video.title }}</a></li>
+        <li>
+          <a
+            href="#"
+            onclick="changeVideo('{{ video.video_uid }}'); return false;"
+            >{{ video.title }}</a
+          >
+        </li>
         {% else %}
-            <li>No videos found.</li>
+        <li>No videos found.</li>
         {% endfor %}
-    </ul>
-</div>
-    <div style="clear: both;"></div>
+      </ul>
+      <div id="drag-drop-area">
+        <p>Drag and drop files here</p>
+        <!-- File input for users who prefer to use a file dialog -->
+        <input type="file" id="fileInput" />
+      </div>
+      <button class="upload-button" id="uploadButton">Upload</button>
+    </div>
+    <div style="clear: both"></div>
     <!-- Assuming you have some data to display in a table format -->
     <table>
-        <tr>
-            <th>Play</th>
-            <th>Type</th>
-            <th>Result</th>
-            <!-- Add more headers as needed -->
-        </tr>
-        {% for video_data in videos_data %}
-        <tr>
-            <td>{{ video_data.play }}</td>
-            <td>{{ video_data.playtype }}</td>
-            <td>{{ video_data.result }}</td>
-            <!-- Add more data cells as needed -->
-        </tr>
-        {% endfor %}
+      <tr>
+        <th>Play</th>
+        <th>Type</th>
+        <th>Result</th>
+        <!-- Add more headers as needed -->
+      </tr>
+      {% for video_data in videos_data %}
+      <tr>
+        <td>{{ video_data.play }}</td>
+        <td>{{ video_data.playtype }}</td>
+        <td>{{ video_data.result }}</td>
+        <!-- Add more data cells as needed -->
+      </tr>
+      {% endfor %}
     </table>
-    <script>
-    document.getElementById('sidebarCollapse').onclick = function() {
-            var sidebar = document.getElementById('sidebarContent');
-            var videoWrapper = document.getElementById('videoPlayerWrapper');
-            var listWrapper = document.getElementById('videoListWrapper');
+     <script>
+   /*   document.getElementById("sidebarCollapse").onclick = function () {
+        var sidebar = document.getElementById("sidebarContent");
+        var videoWrapper = document.getElementById("videoPlayerWrapper");
+        var listWrapper = document.getElementById("videoListWrapper");
 
-            if (sidebar.style.width === '0px' || sidebar.style.width === '') {
-                sidebar.style.width = '30%'; // Expand sidebar
-                videoWrapper.style.width = '70%'; // Shrink video
-                listWrapper.style.width = '30%'; // Expand sidebar wrapper
-            } else {
-                sidebar.style.width = '0px'; // Collapse sidebar
-                videoWrapper.style.width = '97%'; // Expand video
-                listWrapper.style.width = '3%'; // Collapse sidebar wrapper
-            }
-        };
-function changeVideo(videoUID) {
+        if (sidebar.style.width === "0px" || sidebar.style.width === "") {
+          sidebar.style.width = "30%"; // Expand sidebar
+          videoWrapper.style.width = "70%"; // Shrink video
+          listWrapper.style.width = "30%"; // Expand sidebar wrapper
+        } else {
+          sidebar.style.width = "0px"; // Collapse sidebar
+          videoWrapper.style.width = "97%"; // Expand video
+          listWrapper.style.width = "3%"; // Collapse sidebar wrapper
+        }
+      }; */
+      function changeVideo(videoUID) {
         var iframeSrc = `https://customer-mcs4oh9p1cp0fw64.cloudflarestream.com/${videoUID}/iframe`;
-        document.getElementById('videoPlayer').src = iframeSrc;
-    }    </script>
-</body>
+        document.getElementById("videoPlayer").src = iframeSrc;
+      }
+    </script>
+    <script type="module">
+     import { Uppy, Tus, DragDrop } from "https://releases.transloadit.com/uppy/v3.0.1/uppy.min.mjs"
+
+      const uppy = new Uppy({ debug: true, autoProceed: false })
+        .use(DragDrop, { target: "#drag-drop-area" })
+        .use(Tus, { endpoint: "/api/get-upload-url" });
+
+      uppy.on("complete", (result) => {
+        console.log(
+          "Upload complete! We’ve uploaded these files:",
+          result.successful,
+        );
+        // Here you can add any post-upload actions
+      });
+
+      // Connect the file input to Uppy
+      const fileInput = document.getElementById("fileInput");
+      fileInput.addEventListener("change", (event) => {
+        const files = Array.from(event.target.files);
+        files.forEach((file) => {
+          uppy.addFile({
+            name: file.name,
+            type: file.type,
+            data: file,
+          });
+        });
+      });
+
+      const uploadBtn = document.getElementById("uploadButton");
+      uploadBtn.addEventListener("click", () => {
+        if (uppy.getFiles().length === 0) {
+          alert("Please select a file to upload.");
+          return;
+        }
+        uppy.upload();
+      });
+    </script>
+  </body>
 </html>
