@@ -174,10 +174,12 @@
     </script>
     <script type="module">
      import { Uppy, Tus, DragDrop } from "https://releases.transloadit.com/uppy/v3.0.1/uppy.min.mjs"
-
+     console.log(Tus); // Check if Tus is defined
       const uppy = new Uppy({ debug: true, autoProceed: false })
         .use(DragDrop, { target: "#drag-drop-area" })
-        .use(Tus, { endpoint: "/api/get-upload-url" });
+
+
+    uppy.use(Tus, { endpoint: 'http://localhost:8080/api/get-upload-url', chunkSize: 150 * 1024 * 1024 })
 
       uppy.on("complete", (result) => {
         console.log(
