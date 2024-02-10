@@ -1,74 +1,16 @@
 use actix_cors::Cors;
-use actix_web::{web, HttpResponse, App,HttpServer, Responder, get, http::StatusCode};
+use actix_web::{web, App, HttpServer, http::header};
 use bb8::Pool;
 use bb8_postgres::PostgresConnectionManager;
 use dotenv::dotenv;
 use std::env;
-use tera::{Tera, Context};
+use tera::Tera;
 use tokio_postgres::NoTls;
-use firebase_auth::{FirebaseAuth, FirebaseUser};
-use serde::{Deserialize, Serialize};
-use reqwest; // Add `reqwest` to your Cargo.toml dependencies
-
-#[derive(Serialize, Deserialize)] 
-struct UserCredentials {
-    email: String,
-    password: String,
-}
-
-#[derive(Serialize)]
-struct Video {
-    title: String,
-    video_uid: String,
-}
-
-
+use firebase_auth::{FirebaseAuth};
+mod models; // This line imports the models directory module, thanks to models/mod.rs
 mod handlers;
-
-// ... other mods ...
-
-use handlers::{index, get_upload_url};
-
-#[get("/hello")]
-async fn greet(user: FirebaseUser) -> impl Responder {
-    let email = user.email.unwrap_or("empty email".to_string());
-    format!("Hello {}!", email)
-}
-
-#[get("/public")]
-async fn public() -> impl Responder {
-    "ok"
-}
-
-
-async fn login(credentials: web::Json<UserCredentials>) -> impl Responder {
-    let url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=[AIzaSyAR_9FrpHM22VDTwhEHiXfapDk1k5IfiF4]";
-    let client = reqwest::Client::new();
-    let res = client.post(url)
-        .json(&credentials)
-        .send()
-        .await;
-
-    match res {
-        Ok(response) => {
-            if response.status().is_success() {
-                HttpResponse::Ok().json("Login successful")
-            } else {
-                HttpResponse::Unauthorized().json("Invalid credentials")
-            }
-        },
-        Err(_) => HttpResponse::InternalServerError().finish(),
-    }
-}
-async fn login_page(tera: web::Data<Tera>) -> impl Responder {
-    let mut context = Context::new();
-    // You can add any context variables here if needed
-
-    match tera.render("login.html", &context) {
-        Ok(html) => HttpResponse::Ok().content_type("text/html").body(html),
-        Err(_) => HttpResponse::new(StatusCode::INTERNAL_SERVER_ERROR),
-    }
-}
+use crate::handlers::video::{get_upload_url, fetch_videos};
+use crate::handlers::auth::{login_page, greet, public};
 // The main function is the entry point for the program
 // It is used to start the server and listen for incoming requests
 // The server is started on port 5000
@@ -90,15 +32,20 @@ async fn main() -> anyhow::Result<()> {
     let firebase_auth = FirebaseAuth::new("nxtplay-9dbae").await;
     let tera = Tera::new("templates/**/*").unwrap();
     HttpServer::new(move || {
-        let cors = Cors::permissive();
+        let cors = Cors::default() // Adjust according to your needs
+            .allowed_origin("http://localhost:3000") // React app's origin
+            .allowed_methods(vec!["GET", "POST"])
+            .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
+            .allowed_header(header::CONTENT_TYPE)
+            .max_age(3600);
         App::new()
             .wrap(cors)
             .app_data(web::Data::new(tera.clone()))
             .app_data(web::Data::new(pool.clone()))
             .app_data(web::Data::new(firebase_auth.clone())) // Add Firebase Auth as app data
             .route("/login", web::get().to(login_page))
-            .route("/", web::get().to(index))
             .route("/api/get-upload-url", web::post().to(get_upload_url))
+            .route("/api/videos", web::get().to(fetch_videos))
                    // Example Firebase Auth protected route
             .service(greet)
             .service(public)
