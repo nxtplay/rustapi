@@ -31,7 +31,7 @@ pub async fn fetch_videos(
  * The function returns the upload URL
  */
 pub async fn get_upload_url(req: HttpRequest,  pool: web::Data<Pool<PostgresConnectionManager<NoTls>>>) ->Result<HttpResponse, actix_web::Error>{
-    print!("TEST");
+    println!("TEST");
 
     let cloudflare_account_id = env::var("cloudflare_account_id").expect("cloudflare_account_id must be set");
     let cloudflare_api_token = env::var("cloudflare_api_token").expect("cloudflare_api_token must be set");

@@ -1,7 +1,7 @@
-use tera::{Tera, Context};
-use firebase_auth::FirebaseUser;
-use actix_web::{web, HttpResponse, Responder, get, http::StatusCode};
 use crate::models::user::UserCredentials;
+use actix_web::{get, http::StatusCode, web, HttpResponse, Responder};
+use firebase_auth::FirebaseUser;
+use tera::{Context, Tera};
 #[get("/hello")]
 pub async fn greet(user: FirebaseUser) -> impl Responder {
     let email = user.email.unwrap_or("empty email".to_string());
@@ -13,14 +13,10 @@ pub async fn public() -> impl Responder {
     "ok"
 }
 
-
 pub async fn login(credentials: web::Json<UserCredentials>) -> impl Responder {
     let url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=[AIzaSyAR_9FrpHM22VDTwhEHiXfapDk1k5IfiF4]";
     let client = reqwest::Client::new();
-    let res = client.post(url)
-        .json(&credentials)
-        .send()
-        .await;
+    let res = client.post(url).json(&credentials).send().await;
 
     match res {
         Ok(response) => {
@@ -29,7 +25,7 @@ pub async fn login(credentials: web::Json<UserCredentials>) -> impl Responder {
             } else {
                 HttpResponse::Unauthorized().json("Invalid credentials")
             }
-        },
+        }
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }
@@ -42,4 +38,3 @@ pub async fn login_page(tera: web::Data<Tera>) -> impl Responder {
         Err(_) => HttpResponse::new(StatusCode::INTERNAL_SERVER_ERROR),
     }
 }
-

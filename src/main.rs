@@ -1,5 +1,5 @@
 use actix_cors::Cors;
-use actix_web::{web, App, HttpServer, http::header};
+use actix_web::{web, App, HttpServer, http, http::header};
 use bb8::Pool;
 use bb8_postgres::PostgresConnectionManager;
 use dotenv::dotenv;
@@ -13,7 +13,6 @@ use crate::handlers::video::{get_upload_url, fetch_videos};
 use crate::handlers::auth::{login_page, greet, public};
 // The main function is the entry point for the program
 // It is used to start the server and listen for incoming requests
-// The server is started on port 5000
 // The server listens for incoming requests and routes them to the appropriate handler
 // The server is started by calling the run method on the HttpServer struct
 // The run method is an asynchronous method and is called within an async block
@@ -32,11 +31,11 @@ async fn main() -> anyhow::Result<()> {
     let firebase_auth = FirebaseAuth::new("nxtplay-9dbae").await;
     let tera = Tera::new("templates/**/*").unwrap();
     HttpServer::new(move || {
-        let cors = Cors::default() // Adjust according to your needs
+        let cors = Cors::permissive()// Adjust according to your needs
             .allowed_origin("http://localhost:3000") // React app's origin
-            .allowed_methods(vec!["GET", "POST"])
-            .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
-            .allowed_header(header::CONTENT_TYPE)
+//            .allowed_methods(vec!["GET", "POST",  "OPTIONS"])
+ //           .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT, http::header::CONTENT_TYPE])
+  //          .allowed_header(http::header::CONTENT_TYPE)
             .max_age(3600);
         App::new()
             .wrap(cors)
