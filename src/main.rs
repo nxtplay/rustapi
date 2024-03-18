@@ -9,7 +9,7 @@ use firebase_auth::FirebaseAuth;
 mod models; // This line imports the models directory module, thanks to models/mod.rs
 mod handlers;
 use crate::handlers::video::{get_upload_url, fetch_videos};
-use crate::handlers::auth::{login_page};
+use crate::handlers::auth::login_page;
 // The main function is the entry point for the program
 // It is used to start the server and listen for incoming requests
 // The server listens for incoming requests and routes them to the appropriate handler
@@ -22,13 +22,19 @@ async fn main() -> anyhow::Result<()> {
     println!("Starting the Rust API server...");
     dotenv().ok();
 
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-
+   // let database_url = "postgres://willmetz:Raventhree2020@host.docker.internal:5432/nxtplaydatabase";
+    let database_url = "postgresql://postgres:uXmbs3dNgEH0ACKntrMQ@nxtplaydatabase.cxee8am8a74x.us-west-1.rds.amazonaws.com:5432/nxtplaydatabase";
     // Connect to the database
     let manager = PostgresConnectionManager::new_from_stringlike(database_url, NoTls)?;
     println!("Connecting to the database...");
-    let pool = Pool::builder().build(manager).await?;
-    
+   // let pool = Pool::builder().max_size(16).build(manager).await?;
+    let pool = Pool::builder()
+    .max_size(16) // Example size
+    .build(manager).await
+    .map_err(|e| {
+        println!("Failed to create connection pool: {}", e);
+        e // You can also transform the error here
+    })?;
     //Initialize Firebase Auth
     let firebase_auth = FirebaseAuth::new("nxtplay-9dbae").await;
     println!("Firebase Auth initialized...");
