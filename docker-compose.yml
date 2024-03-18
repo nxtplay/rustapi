@@ -1,13 +1,9 @@
 version: '3.8'
 services:
   rustapi:
-    build: .
-    container_name: NXTPlayApi
+    image: williammetz/rustnxtplay:test
     network_mode: host
-    ports:
-      - "8080:8080" # Adjust the port to match the port your application listens on
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    container_name: rustnxtplay_container
     environment:
       #- DATABASE_URL=postgres://willmetz:Raventhree2020@host.docker.internal/nxtplaydatabase
       - DATABASE_URL="postgresql://postgres:uXmbs3dNgEH0ACKntrMQ@nxtplaydatabase.cxee8am8a74x.us-west-1.rds.amazonaws.com:5432/nxtplaydatabase"
