@@ -18,7 +18,7 @@ FROM ubuntu:latest
 ENV RUST_BACKTRACE=1
 # Install necessary packages, including OpenSSL
 RUN apt-get update && \
-    apt-get install -y openssl libssl-dev curl telnet&& \
+    apt-get install -y openssl libssl-dev curl telnet postgresql-client && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy the compiled binary from the builder stage
