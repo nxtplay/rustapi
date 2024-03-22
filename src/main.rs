@@ -25,8 +25,9 @@ async fn main() -> anyhow::Result<()> {
     println!("Starting the Rust API server...");
     dotenv().ok();
 
-   // let database_url = "postgres://willmetz:Raventhree2020@host.docker.internal:5432/nxtplaydatabase";
-    let database_url = "postgres://postgres:uXmbs3dNgEH0ACKntrMQ@nxtplaydatabase.cxee8am8a74x.us-west-1.rds.amazonaws.com:5432/nxtplaydatabase";
+    //let database_url = "postgres://willmetz:Raventhree2020@host.docker.internal:5432/nxtplaydatabase";
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+//    let database_url = "postgres://postgres:uXmbs3dNgEH0ACKntrMQ@nxtplaydatabase.cxee8am8a74x.us-west-1.rds.amazonaws.com:5432/nxtplaydatabase";
     // Connect to the database
     let manager = PostgresConnectionManager::new_from_stringlike(database_url, NoTls)?;
     println!("Connecting to the database...");
