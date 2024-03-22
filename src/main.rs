@@ -10,6 +10,8 @@ mod models; // This line imports the models directory module, thanks to models/m
 mod handlers;
 use crate::handlers::video::{get_upload_url, fetch_videos};
 use crate::handlers::auth::login_page;
+
+use log::{debug, error, log_enabled, info, Level};
 // The main function is the entry point for the program
 // It is used to start the server and listen for incoming requests
 // The server listens for incoming requests and routes them to the appropriate handler
@@ -18,6 +20,7 @@ use crate::handlers::auth::login_page;
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
     // Initialize the Tera templating engine and point it to the templates directory
+    env_logger::init();
 
     println!("Starting the Rust API server...");
     dotenv().ok();
