@@ -5,7 +5,7 @@ use bb8::Pool;
 use bb8_postgres::PostgresConnectionManager;
 use tokio_postgres::NoTls;
 use std::env;
-use crate::models::video::{Video, VideoData}; // This imports the Video struct for use
+use crate::models::video::Video; // This imports the Video struct for use
 
 
 pub async fn fetch_videos(

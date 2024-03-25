@@ -1,7 +1,6 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use actix_web::http::header;
-use bb8::Pool;
 use bb8_postgres::PostgresConnectionManager;
 use dotenv::dotenv;
 use std::env;
@@ -32,22 +31,6 @@ async fn main() -> anyhow::Result<()> {
     println!("Database URL: {}", database_url);
    let manager = PostgresConnectionManager::new_from_stringlike(database_url, NoTls)?;
    let pool = bb8::Pool::builder().build(manager).await.expect("Failed to create pool.");   
-//   let pool = Arc::new(pool); // Wrap the pool in an Arc for shared ownership
-
- //   let pool_clone = pool.clone();
-    
-//j    println!("Trying to fetch videos...");
- //   let conn = pool.get().await?;
-   // let rows = conn.query("SELECT description, videouid FROM Videos", &[])
-    //    .await
-      //  .expect("Failed to execute query");
-
- //   let videos: Vec<Video> = rows.iter().map(|row| Video {
-   //     title: row.get("description"),
-     //   video_uid: row.get("videouid"),
-   // }).collect();
-   // println!("Videos: {:?}", videos);
-
 
     //Initialize Firebase Auth
     let firebase_auth = FirebaseAuth::new("nxtplay-9dbae").await;
@@ -59,15 +42,8 @@ async fn main() -> anyhow::Result<()> {
         .allowed_methods(vec!["GET", "POST", "OPTIONS"])
         .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT, header::CONTENT_TYPE])
         .max_age(3600); 
-       // let cors = Cors::permissive()// Adjust according to your needs
-        //    .allowed_origin("http://localhost:3000") // React app's origin
-         //   .allowed_origin("http://134.173.248.4") // React app's origin
-          //  .allowed_origin("http://134.173.92.5")
-//            .allowed_methods(vec!["GET", "POST",  "OPTIONS"])
- //           .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT, http::header::CONTENT_TYPE])
-  //          .allowed_header(http::header::CONTENT_TYPE)
-           // .max_age(3600);
-        App::new()
+
+       App::new()
             .wrap(cors)
             .app_data(web::Data::new(pool.clone()))
             .app_data(web::Data::new(firebase_auth.clone())) // Add Firebase Auth as app data
