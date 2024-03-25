@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login with FirebaseUI</title>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
+    <style>
+        #firebaseui-auth-container {
+            margin: auto;
+            width: 320px;
+            padding: 40px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>Login Page</h2>
+    <div id="firebaseui-auth-container"></div>
+    <script type="text/javascript">
+        // Your web app's Firebase configuration
+     
+        const firebaseConfig = {
+            apiKey: "AIzaSyAR_9FrpHM22VDTwhEHiXfapDk1k5IfiF4",
+            authDomain: "nxtplay-9dbae.firebaseapp.com",
+            projectId: "nxtplay-9dbae",
+            storageBucket: "nxtplay-9dbae.appspot.com",
+            messagingSenderId: "878726296022",
+            appId: "1:878726296022:web:44c40340890845919c3477",
+            measurementId: "G-BCD1F1YEYG"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Initialize the FirebaseUI Widget using Firebase.
+        var ui = new firebaseui.auth.AuthUI(firebase.auth());
+        
+        // FirebaseUI configuration
+        var uiConfig = {
+            signInSuccessUrl: 'video.html', // Specify the URL you want to redirect to after a successful login
+            signInOptions: [
+                // Specify the authentication providers you want to offer
+                firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+                // More providers as needed
+            ],
+            callbacks: {
+                // Avoid redirects after sign-in.
+                signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+                    return true;
+                }
+            },
+            signInFlow: 'popup', // Use popup for sign in instead of redirect
+        };
+
+        // The start method will wait until the DOM is loaded to render the auth UI
+        ui.start('#firebaseui-auth-container', uiConfig);
+    </script>
+</body>
+</html>
+

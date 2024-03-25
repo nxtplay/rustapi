@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  rustapi:
+    image: williammetz/rustnxtplay:test
+    network_mode: host
+    container_name: rustnxtplay_container
+    environment:
+      #- DATABASE_URL=postgres://willmetz:Raventhree2020@host.docker.internal/nxtplaydatabase
+      - DATABASE_URL="postgres://postgres:uXmbs3dNgEH0ACKntrMQ@nxtplaydatabase.cxee8am8a74x.us-west-1.rds.amazonaws.com:5432/nxtplaydatabase"
+      - cloudflare_account_id=40f4a0b828f1555fa46730f248b7614f
+      - cloudflare_api_token=FzYQRPc4BcJumALyRpLS3QIC6ziiRKUr9u_WLTlo
+      - ClIENT_ID=ZteIT8t7wZCSamaGfizudBoSshfHf5Mi
+      - ClIENT_SECRET=YOZeWv1MmG6ATw4Jz-4brsT1ncHJdLUdSF9XsgIt9BsIVV5wO-vEElq8CZYAQngF
+      - AUTH0_DOMAIN=dev-4jxmuohmjezazmd3.us.auth0.com
+      - FIREBASE_API_KEY=AIzaSyAR_9FrpHM22VDTwhEHiXfapDk1k5IfiF4
+      - FIREBASE_AUTH_DOMAIN=nxtplay-9dbae.firebaseapp.com
+      - FIREBASE_PROJECT_ID=nxtplay-9dbaeFIREBASE_STORAGE_BUCKET
+      - FIREBASE_STORAGE_BUCKET=nxtplay-9dbae.appspot.com
+      - FIREBASE_MESSAGING_SENDER_ID=878726296022
+      - FIREBASE_APP_ID=1:878726296022:web:44c40340890845919c3477
+      - FIREBASE_MEASUREMENT_ID=G-BCD1F1YEYG
+
