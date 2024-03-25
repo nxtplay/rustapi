@@ -1,0 +1,41 @@
+name: Rust CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to EC2
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          HOST: ${{ secrets.HOST }}
+          TARGET_DIR: ${{ secrets.TARGET_DIR }}
+        run: |
+          echo "$DEPLOY_KEY" > deploy_key.pem
+          chmod 600 deploy_key.pem
+          rsync -avz -e "ssh -i deploy_key.pem" ./target/release/myapp ubuntu@$HOST:$TARGET_DIR
+          ssh -i deploy_key.pem ubuntu@$HOST 'bash -s' << 'EOF'
+          cd $TARGET_DIR
+          ./myapp
+          EOF
