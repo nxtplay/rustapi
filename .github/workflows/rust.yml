@@ -10,25 +10,47 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Build
-      run: cargo build --verbose
-    - name: Run 
-      run: cargo run
-    - name: Run tests
-      run: cargo test --verbose
+      run: cargo build --verbose --release
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+    - uses: actions/checkout@v3
+    - name: Copy binary and run tests on EC2
+      env:
+        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        HOST: ${{ secrets.HOST }}
+        TARGET_DIR: ${{ secrets.TARGET_DIR }}
+      run: |
+        echo "$DEPLOY_KEY" > deploy_key.pem
+        chmod 600 deploy_key.pem
+        scp -i deploy_key.pem ./target/release/rustapi ubuntu@$HOST:$TARGET_DIR/test/
+        ssh -i deploy_key.pem ubuntu@$HOST << EOF
+        cd $TARGET_DIR/test
+        # Start the application in the background
+        nohup ./rustapi &
+        # Wait for the application to initialize
+        sleep 10
+        # Now, run the tests which require the application to be running
+        cargo test --verbose
+        # Optionally, kill the application after tests are done
+        pkill rustapi
+        EOF
 
   deploy:
-    needs: build-and-test
+    needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v3
-      - name: Deploy to EC2
+      - name: Deploy to EC2 with tmux
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
           HOST: ${{ secrets.HOST }}
@@ -36,8 +58,15 @@ jobs:
         run: |
           echo "$DEPLOY_KEY" > deploy_key.pem
           chmod 600 deploy_key.pem
-          rsync -avz -e "ssh -i deploy_key.pem" ./target/release/myapp ubuntu@$HOST:$TARGET_DIR
-          ssh -i deploy_key.pem ubuntu@$HOST 'bash -s' << 'EOF'
+          scp -i deploy_key.pem ./target/release/rustapi ubuntu@$HOST:$TARGET_DIR
+          ssh -i deploy_key.pem ubuntu@$HOST << EOF
           cd $TARGET_DIR
-          ./myapp
+          # Check if a tmux session named 'rustapi' already exists, and kill it if it does
+          tmux kill-session -t rustapi 2>/dev/null || true
+          # Create a new tmux session named 'rustapi' and detach from it
+          tmux new-session -d -s rustapi './rustapi'
+          # Optional: Display the list of tmux sessions for debugging
+          tmux list-sessions
           EOF
+
+
