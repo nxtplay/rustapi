@@ -11,16 +11,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: |
-        cargo update
-        cargo build --verbose --release
-
-
+  
   test:
     needs: build
     runs-on: ubuntu-latest
@@ -33,6 +24,8 @@ jobs:
           HOST: ${{ secrets.HOST }}
           TARGET_DIR: ${{ secrets.TARGET_DIR }}
         run: |
+          cargo update
+          cargo build --verbose --release
           echo "$DEPLOY_KEY" > deploy_key.pem
           chmod 600 deploy_key.pem
           scp -o StrictHostKeyChecking=no -i deploy_key.pem ./target/release/rustapi ubuntu@$HOST:$TARGET_DIR/test/
