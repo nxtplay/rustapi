@@ -19,7 +19,7 @@ jobs:
       run: |
       cargo update
       cargo build --verbose --release
-      EOF
+
 
   test:
     needs: build
