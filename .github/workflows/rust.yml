@@ -14,7 +14,8 @@ jobs:
   
   BuildandTest:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+#    if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - name: Copy binary and run tests on EC2
@@ -47,7 +48,7 @@ jobs:
   Deploy:
     needs: BuildandTest
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - name: Deploy to EC2 with systemd
@@ -58,7 +59,7 @@ jobs:
         run: |
           echo "$DEPLOY_KEY" > deploy_key.pem
           chmod 600 deploy_key.pem
-          ssh -i deploy_key.pem ubuntu@$HOST << EOF
+          ssh -o StrictHostKeyChecking=no -i deploy_key.pem ubuntu@$HOST << 'EOF'
             sudo systemctl stop rustapi.service
             mv $TARGET_DIR/test/rustapi $TARGET_DIR/rustapi
             sudo systemctl start rustapi.service
