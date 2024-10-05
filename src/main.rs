@@ -1,5 +1,5 @@
 use actix_cors::Cors;
-use actix_web::{web, App, HttpServer};
+use actix_web::{web, http, App, HttpServer};
 use actix_web::http::header;
 use bb8_postgres::PostgresConnectionManager;
 use dotenv::dotenv;
@@ -37,11 +37,12 @@ async fn main() -> anyhow::Result<()> {
     println!("Firebase Auth initialized...");
     println!("Server running at http:// ");
     HttpServer::new(move || {
-        let cors = Cors::default()
+        let cors = Cors::permissive()
+        .allowed_origin("http://localhost:3000") // Adjust this to your client's origin
         .allow_any_origin()
-        .allowed_methods(vec!["GET", "POST", "OPTIONS"])
-        .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT, header::CONTENT_TYPE])
-        .max_age(3600); 
+        .allowed_methods(vec!["GET", "POST"]) // Specifies which methods are allowed
+        .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT, http::header::CONTENT_TYPE])
+        .max_age(3600);
 
        App::new()
             .wrap(cors)
