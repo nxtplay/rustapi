@@ -27,7 +27,7 @@ jobs:
           cargo build --verbose --release
           echo "$DEPLOY_KEY" > deploy_key.pem
           chmod 600 deploy_key.pem
-          scp -o StrictHostKeyChecking=no -i deploy_key.pem ./target/release/rustapi ubuntu@$HOST:$TARGET_DIR/test/
+          scp -o StrictHostKeyChecking=no -i deploy_key.pem -r ./target/release/rustapi ubuntu@$HOST:$TARGET_DIR/test/
           ssh -o StrictHostKeyChecking=no -i deploy_key.pem ubuntu@$HOST << 'EOF'
             cd $TARGET_DIR/test
             # Start the application in the background
