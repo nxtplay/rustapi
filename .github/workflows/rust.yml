@@ -26,27 +26,30 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
-    - uses: actions/checkout@v3
-    - name: Copy binary and run tests on EC2
-      env:
-        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-        HOST: ${{ secrets.HOST }}
-        TARGET_DIR: ${{ secrets.TARGET_DIR }}
-      run: |
-        echo "$DEPLOY_KEY" > deploy_key.pem
-        chmod 600 deploy_key.pem
-        scp -i deploy_key.pem ./target/release/rustapi ubuntu@$HOST:$TARGET_DIR/test/
-        ssh -i deploy_key.pem ubuntu@$HOST << EOF
-        cd $TARGET_DIR/test
-        # Start the application in the background
-        nohup ./rustapi &
-        # Wait for the application to initialize
-        sleep 10
-        # Now, run the tests which require the application to be running
-        cargo test --verbose
-        # Optionally, kill the application after tests are done
-        pkill rustapi
-        EOF
+      - uses: actions/checkout@v3
+      - name: Copy binary and run tests on EC2
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          HOST: ${{ secrets.HOST }}
+          TARGET_DIR: ${{ secrets.TARGET_DIR }}
+        run: |
+          echo "$DEPLOY_KEY" > deploy_key.pem
+          chmod 600 deploy_key.pem
+          scp -o StrictHostKeyChecking=no -i deploy_key.pem ./target/release/rustapi ubuntu@$HOST:$TARGET_DIR/test/
+          ssh -o StrictHostKeyChecking=no -i deploy_key.pem ubuntu@$HOST << 'EOF'
+            cd $TARGET_DIR/test
+            # Start the application in the background
+            nohup ./rustapi &
+            # Wait for the application to initialize
+            sleep 10
+            # Now, run the tests which require the application to be running
+            cargo test --verbose
+            # Optionally, kill the application after tests are done
+            pkill rustapi
+          EOF
+          # Clean up the deploy key for security reasons
+          rm -f deploy_key.pem
+
 
   deploy:
     needs: test
